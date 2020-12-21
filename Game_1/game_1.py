@@ -3,10 +3,7 @@
 import pygame, time
 pygame.init()
 
-
 win = pygame.display.set_mode((500,480))
-myfont = pygame.font.Font(None, 35)
-text1 = myfont.render("Hit!", 1, (255,0,0))
 
 pygame.display.set_caption("First Game")
 
@@ -15,8 +12,13 @@ walkLeft = [pygame.image.load('L1.png'), pygame.image.load('L2.png'), pygame.ima
 bg = pygame.image.load('bg.jpg')
 char = pygame.image.load('standing.png')
 
+myfont = pygame.font.Font(None, 35)
+text1 = myfont.render("Hit!", 1, (0, 0, 255))
+text2 = myfont.render("You defeated the goblin!!!", 1, (0, 0, 255))
+
 clock = pygame.time.Clock()
 
+score = 0
 
 class player(object):
     def __init__(self,x,y,width,height):
@@ -50,7 +52,7 @@ class player(object):
             else:
                 win.blit(walkLeft[0], (self.x, self.y))
         self.hitbox = (self.x + 17, self.y + 11, 29, 52)
-        pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+        #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
                 
 
 
@@ -81,20 +83,26 @@ class enemy(object):
         self.walkCount = 0
         self.vel = 3
         self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+        self.health = 10
+        self.visible = True
 
     def draw(self,win):
         self.move()
-        if self.walkCount + 1 >= 33:
-            self.walkCount = 0
+        if self.visible:
+            if self.walkCount + 1 >= 33:
+                self.walkCount = 0
 
-        if self.vel > 0:
-            win.blit(self.walkRight[self.walkCount //3], (self.x, self.y))
-            self.walkCount += 1
-        else:
-            win.blit(self.walkLeft[self.walkCount //3], (self.x, self.y))
-            self.walkCount += 1
-        self.hitbox = (self.x + 17, self.y + 2, 31, 57)
-        pygame.draw.rect(win, (255,0,0), self.hitbox,2)
+            if self.vel > 0:
+                win.blit(self.walkRight[self.walkCount //3], (self.x, self.y))
+                self.walkCount += 1
+            else:
+                win.blit(self.walkLeft[self.walkCount //3], (self.x, self.y))
+                self.walkCount += 1
+
+            pygame.draw.rect(win, (255,0,0), (self.hitbox[0], self.hitbox[1] - 20, 50, 10))
+            pygame.draw.rect(win, (0,128,0), (self.hitbox[0], self.hitbox[1] - 20, 50 - (5 * (10 - self.health)), 10))
+            self.hitbox = (self.x + 17, self.y + 2, 31, 57)
+            #pygame.draw.rect(win, (255,0,0), self.hitbox,2)
 
     def move(self):
         if self.vel > 0:
@@ -111,17 +119,31 @@ class enemy(object):
                 self.walkCount = 0
 
     def hit(self):
-        now = time.time()
-        later = time.time()
-        while int((later - now) < 2):
+        if self.health != 0:
+            self.health -= 1
+            now = time.time()
+            later = time.time()
+            while int((later - now) < 1):
                         later = time.time()
-                        win.blit(text1, (400, 10))
+                        win.blit(text1, (200, 70))
                         pygame.display.update()
+        else:
+            now = time.time()
+            later = time.time()
+            while int((later - now) < 2):
+                        later = time.time()
+                        win.blit(text2, (200, 70))
+                        pygame.display.update()
+            self.visible = False
+
+        
 
         
 
 def redrawGameWindow():
     win.blit(bg, (0,0))
+    text = font.render('Score: ' + str(score), 1, (0,0,0))
+    win.blit(text, (390, 10))
     man.draw(win)
     goblin.draw(win)
     for bullet in bullets:
@@ -131,6 +153,7 @@ def redrawGameWindow():
 
 
 #mainloop
+font = pygame.font.SysFont('comicsans', 30, True)
 man = player(200, 410, 64,64)
 goblin = enemy(100, 410, 64, 64, 450)
 shootLoop = 0
@@ -141,7 +164,7 @@ while run:
 
     if shootLoop > 0:
         shootLoop += 1
-    if shootLoop > 8:
+    if shootLoop > 3:
         shootLoop = 0
     
     for event in pygame.event.get():
@@ -152,6 +175,7 @@ while run:
         if bullet.y - bullet.radius < goblin.hitbox[1] + goblin.hitbox[3] and bullet.y + bullet.radius > goblin.hitbox[1]:
             if bullet.x + bullet.radius > goblin.hitbox[0] and bullet.x - bullet.radius < goblin.hitbox[0] + goblin.hitbox[2]:
                 goblin.hit()
+                score += 1
                 bullets.pop(bullets.index(bullet))
                 
         if bullet.x < 500 and bullet.x > 0:
@@ -206,4 +230,3 @@ while run:
     redrawGameWindow()
 
 pygame.quit()
-
