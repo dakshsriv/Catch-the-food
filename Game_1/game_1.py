@@ -148,7 +148,7 @@ class enemy(object):
             self.health -= 1
         else:
             self.visible = False
-        print("hit")
+        #print("hit")
 
         
 
