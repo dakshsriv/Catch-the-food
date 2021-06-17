@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+# BTW This took 2 hours 
 import pygame
 import random
 import time
@@ -22,6 +23,7 @@ bananas = int()
 pygame.display.set_caption("DiscDodger")
 fruit1Sound = pygame.mixer.Sound('bullet.wav')
 run = True
+hit = pygame.mixer.Sound("hit.wav")
 clock = pygame.time.Clock()
 falling = []
 bg = pygame.image.load("bg.jpeg")
@@ -61,6 +63,7 @@ class player(object):
         #pygame.draw.circle(win, (255,0,0), (self.x, self.y), 35, 0)
 
     def hit(self, index, totalfruit, apples, bananas):
+        hit.play()
         totalfruit += 1
         tf = falling[index]
         if tf.fruit == "apple":
@@ -79,8 +82,8 @@ while run:
         win.blit(text4, (200, 600))
         win.blit(text5, (600, 200))
         for x in range(0, random.randint(4, 8)):
-            win.blit(banana, (random.randint(300,1800), 800))
-            win.blit(apple, (random.randint(300,1800), 800))
+            win.blit(banana, (random.randint(100,1600), 800))
+            win.blit(apple, (random.randint(100,1600), 800))
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -116,7 +119,7 @@ while run:
                 fruit1.y += 14
                 ydiff = disc.y - fruit1.y
                 xdiff = disc.x - fruit1.x
-                if ydiff < 80 and ydiff > 5 and xdiff > -300 and xdiff < 600 and fruit1.catch == False:
+                if ydiff < 80 and ydiff > 5 and xdiff > -600 and xdiff < 300 and fruit1.catch == False:
                     tfs, appless, bnn = disc.hit(falling.index(fruit1), totalfruit, apples, bananas)
                     fruit1.catch = True
                     totalfruit = tfs
